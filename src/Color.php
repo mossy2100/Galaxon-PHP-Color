@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Galaxon\Color;
 
 use ArgumentCountError;
-use Galaxon\Core\Equatable;
 use Galaxon\Core\Floats;
+use Galaxon\Core\Traits\Equatable;
 use Galaxon\Units\MeasurementTypes\Angle;
 use Override;
 use RangeException;
@@ -19,8 +19,10 @@ use ValueError;
  * @author Shaun Moss
  * @version 2025-08-14
  */
-class Color implements Stringable, Equatable
+class Color implements Stringable
 {
+    use Equatable;
+
     // region Internal representation
 
     /**
@@ -478,7 +480,7 @@ class Color implements Stringable, Equatable
      * @return bool True if the colors are equal, false otherwise.
      */
     #[Override]
-    public function equals(mixed $other): bool
+    public function equal(mixed $other): bool
     {
         return $other instanceof self && $this->rgba === $other->rgba;
     }

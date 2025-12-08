@@ -373,8 +373,8 @@ final class ColorTest extends TestCase
         $color1 = Color::fromHsl(0, 1, 0.5);
         $color2 = Color::fromHsl(360, 1, 0.5);
         $color3 = Color::fromHsl(-360, 1, 0.5);
-        $this->assertTrue($color1->equals($color2));
-        $this->assertTrue($color1->equals($color3));
+        $this->assertTrue($color1->equal($color2));
+        $this->assertTrue($color1->equal($color3));
     }
 
     /**
@@ -913,42 +913,42 @@ final class ColorTest extends TestCase
     // region Equals tests
 
     /**
-     * Test equals() returns true for identical colors.
+     * Test equal() returns true for identical colors.
      */
-    public function testEquals(): void
+    public function testEqual(): void
     {
         $color1 = Color::fromRgb(100, 150, 200, 250);
         $color2 = Color::fromRgb(100, 150, 200, 250);
-        $this->assertTrue($color1->equals($color2));
+        $this->assertTrue($color1->equal($color2));
     }
 
     /**
-     * Test equals() returns false for different colors.
+     * Test equal() returns false for different colors.
      */
     public function testNotEquals(): void
     {
         $color1 = Color::fromRgb(100, 150, 200);
         $color2 = Color::fromRgb(100, 150, 201);
-        $this->assertFalse($color1->equals($color2));
+        $this->assertFalse($color1->equal($color2));
     }
 
     /**
-     * Test equals() returns false when only alpha differs.
+     * Test equal() returns false when only alpha differs.
      */
-    public function testEqualsWithDifferentAlpha(): void
+    public function testEqualWithDifferentAlpha(): void
     {
         $color1 = Color::fromRgb(100, 150, 200, 255);
         $color2 = Color::fromRgb(100, 150, 200, 128);
-        $this->assertFalse($color1->equals($color2));
+        $this->assertFalse($color1->equal($color2));
     }
 
     /**
-     * Test equals() returns false when comparing with non-Color.
+     * Test equal() returns false when comparing with non-Color.
      */
-    public function testEqualsWithNonColor(): void
+    public function testEqualWithNonColor(): void
     {
         $color = new Color('red');
-        $this->assertFalse($color->equals('red'));
+        $this->assertFalse($color->equal('red'));
     }
 
     // endregion
@@ -1124,7 +1124,7 @@ final class ColorTest extends TestCase
         $color1 = Color::fromRgb(255, 0, 0);
         $color2 = Color::fromRgb(0, 255, 0);
         $mixed = $color1->mix($color2, 1.0);
-        $this->assertTrue($color2->equals($mixed));
+        $this->assertTrue($color2->equal($mixed));
     }
 
     /**
@@ -1135,7 +1135,7 @@ final class ColorTest extends TestCase
         $color1 = Color::fromRgb(255, 0, 0);
         $color2 = Color::fromRgb(0, 255, 0);
         $mixed = $color1->mix($color2, 0.0);
-        $this->assertTrue($color1->equals($mixed));
+        $this->assertTrue($color1->equal($mixed));
     }
 
     /**
@@ -1227,7 +1227,7 @@ final class ColorTest extends TestCase
     {
         $color = new Color('red');
         $avg = Color::average($color);
-        $this->assertTrue($color->equals($avg));
+        $this->assertTrue($color->equal($avg));
     }
 
     /**
@@ -1435,7 +1435,7 @@ final class ColorTest extends TestCase
     {
         $color1 = Color::fromHsl(0, 1, 0.5);
         $color2 = Color::fromHsl(360, 1, 0.5);
-        $this->assertTrue($color1->equals($color2));
+        $this->assertTrue($color1->equal($color2));
     }
 
     /**
@@ -1445,7 +1445,7 @@ final class ColorTest extends TestCase
     {
         $color1 = Color::fromHsl(120, 1, 0.5);
         $color2 = Color::fromHsl(-240, 1, 0.5);
-        $this->assertTrue($color1->equals($color2));
+        $this->assertTrue($color1->equal($color2));
     }
 
     // endregion
