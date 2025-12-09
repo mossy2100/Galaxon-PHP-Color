@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace Galaxon\Color\Tests;
 
 use ArgumentCountError;
+use Galaxon\Color\Color;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Galaxon\Color\Color;
 use RangeException;
 use ValueError;
 

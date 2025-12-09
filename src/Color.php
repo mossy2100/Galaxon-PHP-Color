@@ -52,10 +52,9 @@ class Color implements Stringable
 
     /**
      * Constants for computing perceived lightness.
-     *
-     * @var float
      */
     private const float EPSILON = 216 / 24389; // 0.008856451679...
+
     private const float KAPPA = 24389 / 27;  // 903.296296...
 
     // endregion
@@ -497,7 +496,7 @@ class Color implements Stringable
      * @return self
      * @throws RangeException If the fraction is invalid.
      */
-    public function mix(Color $other, float $frac = 0.5): self
+    public function mix(self $other, float $frac = 0.5): self
     {
         // Validate the fraction.
         self::validateFraction($frac);
@@ -588,7 +587,7 @@ class Color implements Stringable
         }
 
         // Calculate the averages.
-        $avg = static fn($sum) => (int)round($sum / $n);
+        $avg = static fn ($sum) => (int)round($sum / $n);
         $r = $avg($sumR);
         $g = $avg($sumG);
         $b = $avg($sumB);
@@ -608,7 +607,7 @@ class Color implements Stringable
      * @param Color $other The other color to compare to.
      * @return float The contrast ratio.
      */
-    public function contrastRatio(Color $other): float
+    public function contrastRatio(self $other): float
     {
         $l1 = max($this->relativeLuminance, $other->relativeLuminance);
         $l2 = min($this->relativeLuminance, $other->relativeLuminance);
