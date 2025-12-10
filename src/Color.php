@@ -210,7 +210,7 @@ class Color implements Stringable
      * @return self
      * @throws RangeException If any inputs are invalid.
      */
-    public static function fromRgb(int|float $red, int|float $green, int|float $blue, int|float $alpha = 255): self
+    public static function fromRgba(int|float $red, int|float $green, int|float $blue, int|float $alpha = 255): self
     {
         $color = new self();
 
@@ -253,7 +253,7 @@ class Color implements Stringable
      * @return self
      * @throws RangeException If any inputs are invalid.
      */
-    public static function fromHsl(float $hue, float $saturation, float $lightness, int|float $alpha = 255): self
+    public static function fromHsla(float $hue, float $saturation, float $lightness, int|float $alpha = 255): self
     {
         // Normalize the hue angle.
         $hue = self::normalizeHue($hue);
@@ -272,7 +272,7 @@ class Color implements Stringable
         [$red, $green, $blue] = self::hslToRgb($hue, $saturation, $lightness);
 
         // Construct a new Color.
-        $color = self::fromRgb($red, $green, $blue, $alpha);
+        $color = self::fromRgba($red, $green, $blue, $alpha);
 
         // Cache the HSL properties.
         $color->hsl = [$hue, $saturation, $lightness];
@@ -382,53 +382,57 @@ class Color implements Stringable
     /**
      * Create a new Color with the specified red component.
      *
-     * @param int $red The red component byte value.
+     * The value can be provided as either an int in the range [0, 255] or a float in the range [0.0, 1.0].
+     *
+     * @param int|float $red The red component value.
      * @return self A new Color with the updated red value.
      * @throws RangeException If the value is invalid.
      */
-    public function withRed(int $red): self
+    public function withRed(int|float $red): self
     {
-        self::validateByte($red);
-        return self::fromRgb($red, $this->green, $this->blue, $this->alpha);
+        return self::fromRgba($red, $this->green, $this->blue, $this->alpha);
     }
 
     /**
      * Create a new Color with the specified green component.
      *
-     * @param int $green The green component byte value.
+     * The value can be provided as either an int in the range [0, 255] or a float in the range [0.0, 1.0].
+     *
+     * @param int|float $green The green component value.
      * @return self A new Color with the updated green value.
      * @throws RangeException If the value is invalid.
      */
-    public function withGreen(int $green): self
+    public function withGreen(int|float $green): self
     {
-        self::validateByte($green);
-        return self::fromRgb($this->red, $green, $this->blue, $this->alpha);
+        return self::fromRgba($this->red, $green, $this->blue, $this->alpha);
     }
 
     /**
      * Create a new Color with the specified blue component.
      *
-     * @param int $blue The blue component byte value.
+     * The value can be provided as either an int in the range [0, 255] or a float in the range [0.0, 1.0].
+     *
+     * @param int|float $blue The blue component value.
      * @return self A new Color with the updated blue value.
      * @throws RangeException If the value is invalid.
      */
-    public function withBlue(int $blue): self
+    public function withBlue(int|float $blue): self
     {
-        self::validateByte($blue);
-        return self::fromRgb($this->red, $this->green, $blue, $this->alpha);
+        return self::fromRgba($this->red, $this->green, $blue, $this->alpha);
     }
 
     /**
      * Create a new Color with the specified alpha component.
      *
-     * @param int $alpha The alpha component byte value.
+     * The value can be provided as either an int in the range [0, 255] or a float in the range [0.0, 1.0].
+     *
+     * @param int|float $alpha The alpha component value.
      * @return self A new Color with the updated alpha value.
      * @throws RangeException If the value is invalid.
      */
-    public function withAlpha(int $alpha): self
+    public function withAlpha(int|float $alpha): self
     {
-        self::validateByte($alpha);
-        return self::fromRgb($this->red, $this->green, $this->blue, $alpha);
+        return self::fromRgba($this->red, $this->green, $this->blue, $alpha);
     }
 
     /**
@@ -439,7 +443,7 @@ class Color implements Stringable
      */
     public function withHue(float $hue): self
     {
-        return self::fromHsl($hue, $this->saturation, $this->lightness, $this->alpha);
+        return self::fromHsla($hue, $this->saturation, $this->lightness, $this->alpha);
     }
 
     /**
@@ -452,7 +456,7 @@ class Color implements Stringable
     public function withSaturation(float $saturation): self
     {
         self::validateFraction($saturation);
-        return self::fromHsl($this->hue, $saturation, $this->lightness, $this->alpha);
+        return self::fromHsla($this->hue, $saturation, $this->lightness, $this->alpha);
     }
 
     /**
@@ -465,7 +469,7 @@ class Color implements Stringable
     public function withLightness(float $lightness): self
     {
         self::validateFraction($lightness);
-        return self::fromHsl($this->hue, $this->saturation, $lightness, $this->alpha);
+        return self::fromHsla($this->hue, $this->saturation, $lightness, $this->alpha);
     }
 
     // endregion
@@ -487,8 +491,8 @@ class Color implements Stringable
     /**
      * Mix two colors.
      *
-     * If the fraction is 0 (or very close to), then the result will equal "this" color.
-     * If the fraction is 1 (or very close to), then the result will equal the "other" color.
+     * If the fraction is 0, then the result will equal "this" color.
+     * If the fraction is 1, then the result will equal the "other" color.
      * If the fraction isn't specified, then the result will have 50% of each color.
      *
      * @param self $other The color to mix with.
@@ -518,7 +522,7 @@ class Color implements Stringable
         $a = (int)round(($this->alpha * $frac2) + ($other->alpha * $frac));
 
         // Create and return the mixed color.
-        return self::fromRgb($r, $g, $b, $a);
+        return self::fromRgba($r, $g, $b, $a);
     }
 
     /**
@@ -594,7 +598,7 @@ class Color implements Stringable
         $a = $avg($sumA);
 
         // Create and return the average color.
-        return self::fromRgb($r, $g, $b, $a);
+        return self::fromRgba($r, $g, $b, $a);
     }
 
     // endregion
@@ -615,20 +619,29 @@ class Color implements Stringable
     }
 
     /**
-     * Pick black or white text for the best contrast on this background color.
+     * Determine the best text color for accessibility/readability, suitable for this background color.
      *
-     * This function returns a string, either "black" or "white", which is useful in some contexts.
-     * If a Color is desired, this string can be passed to new Color().
-     * @return string The best text color as a string (either "black" or "white").
-     * @example
-     * new Color($color->bestTextColor())
-     *
+     * @param string|Color $lightTextColor The light text color (default white).
+     * @param string|Color $darkTextColor The dark text color (default black).
+     * @return self The most accessible text color.
+     * @throws ValueError If either of the provided text colors are invalid strings.
+     * @see https://www.w3.org/TR/WCAG20/#contrast-ratiodef
+     * @see https://www.w3.org/TR/WCAG20/#visual-audio-contrast-contrast.
      */
-    public function bestTextColor(): string
+    public function bestTextColor(string|self $lightTextColor = 'white', string|self $darkTextColor = 'black'): self
     {
-        $black = new self('black');
-        $white = new self('white');
-        return ($black->contrastRatio($this) >= $white->contrastRatio($this)) ? 'black' : 'white';
+        // Get the text colors as Color objects.
+        if (is_string($lightTextColor)) {
+            $lightTextColor = new self($lightTextColor);
+        }
+        if (is_string($darkTextColor)) {
+            $darkTextColor = new self($darkTextColor);
+        }
+
+        // Calculate what text color will produce the most contrast. If equal, choose dark.
+        return ($darkTextColor->contrastRatio($this) >= $lightTextColor->contrastRatio($this))
+            ? $darkTextColor
+            : $lightTextColor;
     }
 
     // endregion
@@ -643,7 +656,7 @@ class Color implements Stringable
      * @param string $str A string that could be a CSS hex color.
      * @return bool If the provided string is a valid CSS hex color string.
      */
-    public static function isValidHex(string $str): bool
+    public static function validHex(string $str): bool
     {
         $str = trim($str);
 
@@ -668,7 +681,7 @@ class Color implements Stringable
      * @param string $name A color name.
      * @return bool If the name is a valid CSS color name.
      */
-    public static function isValidName(string $name): bool
+    public static function validName(string $name): bool
     {
         return isset(self::CSS_COLOR_NAMES[strtolower($name)]);
     }
@@ -684,7 +697,7 @@ class Color implements Stringable
     public static function normalizeHex(string $hex): string
     {
         // Check the input string is a valid format.
-        if (!self::isValidHex($hex)) {
+        if (!self::validHex($hex)) {
             throw new ValueError("The provided string '$hex' is not a valid CSS hexadecimal color string.");
         }
 
@@ -716,7 +729,7 @@ class Color implements Stringable
     public static function hexToBytes(string $hex): array
     {
         // Check the input string is a valid format.
-        if (!self::isValidHex($hex)) {
+        if (!self::validHex($hex)) {
             throw new ValueError("The provided string '$hex' is not a valid CSS hexadecimal color string.");
         }
 
@@ -749,7 +762,7 @@ class Color implements Stringable
         $name = strtolower(trim($name));
 
         // Check the provided color name is valid.
-        if (!self::isValidName($name)) {
+        if (!self::validName($name)) {
             throw new ValueError("Invalid color name '$name'.");
         }
 
@@ -784,7 +797,7 @@ class Color implements Stringable
         $str = trim($str);
 
         // Convert a color name to bytes.
-        if (self::isValidName($str)) {
+        if (self::validName($str)) {
             return self::nameToBytes($str);
         }
 
@@ -872,7 +885,7 @@ class Color implements Stringable
      *
      * @return array{red:int, green:int, blue:int, alpha:int} Array of color components as bytes.
      */
-    public function toRgbArray(): array
+    public function toRgbaArray(): array
     {
         return [
             'red'   => $this->red,
@@ -907,7 +920,7 @@ class Color implements Stringable
     public function toArray(): array
     {
         return array_merge(
-            $this->toRgbArray(),
+            $this->toRgbaArray(),
             $this->toHslArray()
         );
     }

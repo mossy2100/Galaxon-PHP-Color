@@ -7,6 +7,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] - 2025-12-10
+
+### Changed
+
+- **Renamed methods** to follow consistent lowerCamelCase naming:
+  - `fromRGB()` → `fromRgba()`
+  - `fromHSL()` → `fromHsla()`
+  - `RGBToHSL()` → `rgbToHsl()`
+  - `HSLToRGB()` → `hslToRgb()`
+  - `toRGBString()` → `toRgbString()`
+  - `toHSLString()` → `toHslString()`
+  - `toRGBArray()` → `toRgbaArray()`
+  - `isValidHex()` → `validHex()`
+  - `isValidName()` → `validName()`
+- **`withRed()`, `withGreen()`, `withBlue()`, `withAlpha()`** now accept `int|float` (float values in range [0.0, 1.0] are converted to bytes)
+- **`bestTextColor()`** now accepts optional custom light/dark text colors (`string|Color`) and returns a `Color` object instead of a string
+
+### Added
+
+- Reorganised documentation with `docs/Color.md` for detailed class documentation
+- New tests for float arguments to `with*()` methods
+- New tests for custom text colors in `bestTextColor()`
+
 ## [0.1.0] - 2025-11-22
 
 ### Added
