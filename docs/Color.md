@@ -13,8 +13,6 @@ The `Color` class provides a comprehensive implementation of color handling with
 
 All modification methods return new instances, maintaining immutability.
 
-## Efficiency
-
 Colors are stored internally in a memory-efficient way:
 - Only 4 bytes for RGBA color data
 - HSL values computed on-demand and cached
@@ -95,6 +93,45 @@ public float $perceivedLightness { get; }
 ```
 
 The perceived lightness (CIE L*) of the color in the range [0.0, 1.0].
+
+**Example:**
+```php
+$color = new Color('#ff8040');
+
+// RGBA components (0-255)
+$color->red;    // 255
+$color->green;  // 128
+$color->blue;   // 64
+$color->alpha;  // 255
+
+// HSL components (floats)
+$color->hue;         // 20.0 (degrees)
+$color->saturation;  // 1.0 (fraction)
+$color->lightness;   // 0.625 (fraction)
+
+// Luminance (for accessibility)
+$color->relativeLuminance;   // 0.0-1.0
+$color->perceivedLightness;  // 0.0-1.0
+```
+
+## Constants
+
+### CSS_COLOR_NAMES
+
+```php
+public const array CSS_COLOR_NAMES
+```
+
+Array of CSS color names (lowercase) mapped to 8-digit hex values. Includes all 147 standard CSS color names plus 'transparent'.
+
+**Example:**
+```php
+new Color('AliceBlue');
+new Color('coral');
+new Color('darkslategray');
+new Color('PapayaWhip');
+new Color('transparent');  // RGBA: 0, 0, 0, 0
+```
 
 ## Constructor
 
@@ -183,9 +220,57 @@ $transparentPink = Color::fromHsla(350, 1.0, 0.876, 0.66);
 
 **Throws:** `RangeException` if any inputs are invalid.
 
-## Immutable Modification Methods
+## Validation Methods
 
-Since Color is immutable, modification methods return new Color instances.
+### validHex()
+
+```php
+public static function validHex(string $str): bool
+```
+
+Check if a string is a valid hex color string.
+
+**Examples:**
+```php
+Color::validHex('#ff0000');   // true
+Color::validHex('ff0');       // true
+Color::validHex('notahex');   // false
+```
+
+### validName()
+
+```php
+public static function validName(string $name): bool
+```
+
+Check if a string is a valid CSS color name.
+
+**Examples:**
+```php
+Color::validName('red');       // true
+Color::validName('notacolor'); // false
+```
+
+## Comparison Methods
+
+### equal()
+
+```php
+public function equal(mixed $other): bool
+```
+
+Check if two colors are equal (all RGBA values match).
+
+**Example:**
+```php
+$color1 = new Color('#ff0000');
+$color2 = new Color('red');
+$color1->equal($color2);  // true
+```
+
+## Transformation Methods
+
+Since Color is immutable, transformation methods return new Color instances.
 
 ### withRed()
 
@@ -261,9 +346,8 @@ Create a new Color with the specified lightness.
 
 **Throws:** `RangeException` if the value is not in [0.0, 1.0].
 
-**Example:**
+### Examples of `with` methods
 ```php
-
 // Modify RGBA components (ints)
 $red = new Color('red');
 $darkRed = $red->withRed(128);  // 50% red
@@ -283,23 +367,6 @@ $custom = $red->withHue(45)->withSaturation(0.8)->withAlpha(0.75);
 
 // Original color is unchanged
 $red->hue;  // Still 0
-```
-
-## Color Operations
-
-### equal()
-
-```php
-public function equal(mixed $other): bool
-```
-
-Check if two colors are equal (all RGBA values match).
-
-**Example:**
-```php
-$color1 = new Color('#ff0000');
-$color2 = new Color('red');
-$color1->equal($color2);  // true
 ```
 
 ### mix()
@@ -340,22 +407,9 @@ $red = new Color('red');
 $cyan = $red->complement();  // Hue shifts from 0 to 180
 ```
 
-### average()
+## Accessibility Methods
 
-```php
-public static function average(self ...$colors): self
-```
-
-Find the average of several colors.
-
-**Example:**
-```php
-$avg = Color::average($color1, $color2, $color3);
-```
-
-**Throws:** `ArgumentCountError` if no colors are provided.
-
-## Accessibility Methods (WCAG)
+Methods for evaluating color accessibility according to WCAG (Web Content Accessibility Guidelines).
 
 ### contrastRatio()
 
@@ -407,158 +461,6 @@ $textColor = $background->bestTextColor('ivory', 'navy');
 $cream = new Color('cornsilk');
 $dark = new Color('#1a1a1a');
 $textColor = $background->bestTextColor($cream, $dark);
-```
-
-## Validation Methods
-
-### validHex()
-
-```php
-public static function validHex(string $str): bool
-```
-
-Check if a string is a valid hex color string.
-
-**Examples:**
-```php
-Color::validHex('#ff0000');   // true
-Color::validHex('ff0');       // true
-Color::validHex('notahex');   // false
-```
-
-### validName()
-
-```php
-public static function validName(string $name): bool
-```
-
-Check if a string is a valid CSS color name.
-
-**Examples:**
-```php
-Color::validName('red');       // true
-Color::validName('notacolor'); // false
-```
-
-## Parsing Methods
-
-### normalizeHex()
-
-```php
-public static function normalizeHex(string $hex): string
-```
-
-Convert a CSS hex color string to an 8-digit lowercase hex string (no leading '#').
-
-**Examples:**
-```php
-Color::normalizeHex('#f00');      // 'ff0000ff'
-Color::normalizeHex('#FF00');     // 'ffff0000'
-Color::normalizeHex('abc');       // 'aabbccff'
-```
-
-**Throws:** `ValueError` if the string is not a valid hex color.
-
-### parseToBytes()
-
-```php
-public static function parseToBytes(string $str): array
-```
-
-Parse a CSS hex or named color to RGBA bytes.
-
-**Returns:** `int[]` - Array of [red, green, blue, alpha] as bytes.
-
-**Example:**
-```php
-$bytes = Color::parseToBytes('#ff8000');
-// [255, 128, 0, 255]
-```
-
-**Throws:** `ValueError` if the string is not a valid color.
-
-### hexToBytes()
-
-```php
-public static function hexToBytes(string $hex): array
-```
-
-Convert a hex string to RGBA bytes.
-
-**Throws:** `ValueError` if the string is not a valid hex color.
-
-### nameToHex()
-
-```php
-public static function nameToHex(string $name): string
-```
-
-Convert a color name to an 8-digit hex value (no leading '#').
-
-**Throws:** `ValueError` if the name is not valid.
-
-### nameToBytes()
-
-```php
-public static function nameToBytes(string $name): array
-```
-
-Convert a color name to RGBA bytes.
-
-**Throws:** `ValueError` if the name is not valid.
-
-## Color Space Conversion
-
-### rgbToHsl()
-
-```php
-public static function rgbToHsl(int $red, int $green, int $blue): array
-```
-
-Convert RGB values to HSL.
-
-**Returns:** `float[]` - Array of [hue, saturation, lightness] where:
-- hue is in degrees [0, 360)
-- saturation is a fraction [0.0, 1.0]
-- lightness is a fraction [0.0, 1.0]
-
-**Example:**
-```php
-$hsl = Color::rgbToHsl(255, 0, 0);  // [0.0, 1.0, 0.5]
-```
-
-**Throws:** `RangeException` if values are not valid bytes.
-
-### hslToRgb()
-
-```php
-public static function hslToRgb(float $hue, float $saturation, float $lightness): array
-```
-
-Convert HSL values to RGB.
-
-**Returns:** `int[]` - Array of [red, green, blue] as bytes.
-
-**Example:**
-```php
-$rgb = Color::hslToRgb(120, 1.0, 0.5);  // [0, 255, 0]
-```
-
-**Throws:** `RangeException` if values are not valid.
-
-### gamma()
-
-```php
-public static function gamma(int $byte): float
-```
-
-Apply the sRGB gamma correction transfer function.
-
-Used by the relative luminance calculation, but made public for other purposes.
-
-**Example:**
-```php
-$linear = Color::gamma(128);  // ~0.215
 ```
 
 ## Conversion Methods
@@ -646,7 +548,7 @@ Get RGBA values as an associative array of bytes.
 public function toHslArray(): array
 ```
 
-Get HSL values as an associative array.
+Get HSL values as an associative array of floats.
 
 **Returns:** `array{hue: float, saturation: float, lightness: float}`
 
@@ -658,95 +560,140 @@ public function toArray(): array
 
 Get all color properties (RGBA and HSL) as an associative array.
 
-## Constants
+## Static Utility Methods
 
-### CSS_COLOR_NAMES
+### gamma()
 
 ```php
-public const array CSS_COLOR_NAMES
+public static function gamma(int $byte): float
 ```
 
-Array of CSS color names (lowercase) mapped to 8-digit hex values. Includes all 147 standard CSS color names plus 'transparent'.
+Apply the sRGB gamma correction transfer function.
+
+Used by the relative luminance calculation, but made public for other purposes.
 
 **Example:**
 ```php
-new Color('AliceBlue');
-new Color('coral');
-new Color('darkslategray');
-new Color('PapayaWhip');
-new Color('transparent');  // RGBA: 0, 0, 0, 0
+$linear = Color::gamma(128);  // ~0.215
 ```
 
-## Usage Examples
-
-### Creating Colors
+### average()
 
 ```php
-use Galaxon\Color\Color;
-
-// From CSS color names (case-insensitive)
-$red = new Color('red');
-$blue = new Color('Blue');
-
-// From hex strings
-$orange = new Color('#ff8000');
-$cyan = new Color('0ff');
-
-// From RGB values
-$purple = Color::fromRgba(128, 0, 255);
-$royalBlue = Color::fromRgba(0.255, 0.412, 0.882);
-
-// From HSL values
-$green = Color::fromHsla(120, 1.0, 0.5);
+public static function average(self ...$colors): self
 ```
 
-### Accessing Properties
+Find the average of several colors.
 
+**Example:**
 ```php
-$color = new Color('#ff8040');
-
-// RGBA components (0-255)
-$color->red;    // 255
-$color->green;  // 128
-$color->blue;   // 64
-$color->alpha;  // 255
-
-// HSL components (floats)
-$color->hue;         // 20.0 (degrees)
-$color->saturation;  // 1.0 (fraction)
-$color->lightness;   // 0.625 (fraction)
-
-// Luminance (for accessibility)
-$color->relativeLuminance;   // 0.0-1.0
-$color->perceivedLightness;  // 0.0-1.0
-```
-
-### Color Operations
-
-```php
-// Mix colors
-$red = new Color('red');
-$blue = new Color('blue');
-$purple = $red->mix($blue);
-
-// Get complementary color
-$cyan = $red->complement();
-
-// Average multiple colors
 $avg = Color::average($color1, $color2, $color3);
 ```
 
-### Accessibility
+**Throws:** `ArgumentCountError` if no colors are provided.
+
+### rgbToHsl()
 
 ```php
-$background = new Color('#336699');
-
-// Calculate contrast ratio
-$ratio = $background->contrastRatio(new Color('white'));
-
-// Auto-select readable text color (returns Color)
-$textColor = $background->bestTextColor();
-
-// Use custom light/dark options
-$textColor = $background->bestTextColor('ivory', 'navy');
+public static function rgbToHsl(int $red, int $green, int $blue): array
 ```
+
+Convert RGB values to HSL.
+
+**Returns:** `float[]` - Array of [hue, saturation, lightness] where:
+- hue is in degrees [0, 360)
+- saturation is a fraction [0.0, 1.0]
+- lightness is a fraction [0.0, 1.0]
+
+**Example:**
+```php
+$hsl = Color::rgbToHsl(255, 0, 0);  // [0.0, 1.0, 0.5]
+```
+
+**Throws:** `RangeException` if values are not valid bytes.
+
+### hslToRgb()
+
+```php
+public static function hslToRgb(float $hue, float $saturation, float $lightness): array
+```
+
+Convert HSL values to RGB.
+
+**Returns:** `int[]` - Array of [red, green, blue] as bytes.
+
+**Example:**
+```php
+$rgb = Color::hslToRgb(120, 1.0, 0.5);  // [0, 255, 0]
+```
+
+**Throws:** `RangeException` if values are not valid.
+
+### normalizeHex()
+
+```php
+public static function normalizeHex(string $hex): string
+```
+
+Convert a CSS hex color string to an 8-digit lowercase hex string (no leading '#').
+
+**Examples:**
+```php
+Color::normalizeHex('#f00');      // 'ff0000ff'
+Color::normalizeHex('#FF00');     // 'ffff0000'
+Color::normalizeHex('abc');       // 'aabbccff'
+```
+
+**Throws:** `ValueError` if the string is not a valid hex color.
+
+### hexToBytes()
+
+```php
+public static function hexToBytes(string $hex): array
+```
+
+Convert a hex string to RGBA bytes.
+
+**Throws:** `ValueError` if the string is not a valid hex color.
+
+### nameToHex()
+
+```php
+public static function nameToHex(string $name): string
+```
+
+Convert a color name to an 8-digit hex value (no leading '#').
+
+**Throws:** `ValueError` if the name is not valid.
+
+### nameToBytes()
+
+```php
+public static function nameToBytes(string $name): array
+```
+
+Convert a color name to RGBA bytes.
+
+**Throws:** `ValueError` if the name is not valid.
+
+### parseToBytes()
+
+```php
+public static function parseToBytes(string $str): array
+```
+
+Parse a CSS hex or named color to RGBA bytes.
+
+**Returns:** `int[]` - Array of [red, green, blue, alpha] as bytes.
+
+**Example:**
+```php
+$bytes = Color::parseToBytes('#ff8000');
+// [255, 128, 0, 255]
+```
+
+**Throws:** `ValueError` if the string is not a valid color.
+
+## See Also
+
+- **[Equatable](https://github.com/mossy2100/Galaxon-PHP-Core/blob/main/docs/Traits/Equatable.md)** - Trait for implementing `equal()`

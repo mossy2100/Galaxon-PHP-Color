@@ -59,7 +59,7 @@ class Color implements Stringable
 
     // endregion
 
-    // region Virtual properties
+    // region Property hooks
 
     // PHP_CodeSniffer doesn't know about property hooks yet.
     // phpcs:disable PSR2.Classes.PropertyDeclaration
@@ -180,7 +180,7 @@ class Color implements Stringable
 
     // endregion
 
-    // region Constructor and factory methods
+    // region Constructor
 
     /**
      * Construct a new color from a string.
@@ -196,6 +196,10 @@ class Color implements Stringable
         $bytes = self::parseToBytes($color);
         $this->setBytes($bytes[0], $bytes[1], $bytes[2], $bytes[3]);
     }
+
+    // endregion
+
+    // region Factory methods
 
     /**
      * Create a color from RGBA values.
@@ -282,102 +286,65 @@ class Color implements Stringable
 
     // endregion
 
-    // region Static methods for converting between RGB and HSL.
+    // region Validation methods
 
     /**
-     * Convert RGB values to HSL.
-     *
-     * The returned array will have the following keys and values in the ranges below:
-     *    hue        => [0, 360)
-     *    saturation => [0.0, 1.0]
-     *    lightness  => [0.0, 1.0]
-     *
-     * Algorithm:
-     * @see https://en.wikipedia.org/wiki/HSL_and_HSV#From_RGB
+     * Returns true if the string is a valid hex color string.
+     * A leading '#' is optional, and it can have 3, 4, 6, or 8 hex digits.
      *
      * @static
-     * @param int $red The red byte value.
-     * @param int $green The green byte value.
-     * @param int $blue The blue byte value.
-     * @return float[] Array of floats with HSL values.
-     * @throws RangeException If the provided values are not in the valid range for RGB bytes.
+     * @param string $str A string that could be a CSS hex color.
+     * @return bool If the provided string is a valid CSS hex color string.
      */
-    public static function rgbToHsl(int $red, int $green, int $blue): array
+    public static function validHex(string $str): bool
     {
-        // Check the red, green and blue bytes are in range:
-        self::validateByte($red);
-        self::validateByte($green);
-        self::validateByte($blue);
+        $str = trim($str);
 
-        // Convert to fractions.
-        $r = self::byteToFraction($red);
-        $g = self::byteToFraction($green);
-        $b = self::byteToFraction($blue);
-
-        // Get the min and max values.
-        $min = min($r, $g, $b);
-        $max = max($r, $g, $b);
-        $c = $max - $min;
-        $l = ($min + $max) / 2;
-
-        // Check for gray.
-        if (Floats::approxEqual($c, 0)) {
-            $h = 0.0;
-            $s = 0.0;
-        } else {
-            // Calculate hue and wrap to [0, 360).
-            if ($max === $r) {
-                $h = fmod(($g - $b) / $c, 6);
-            } elseif ($max === $g) {
-                $h = ($b - $r) / $c + 2;
-            } else { // $max === $b
-                $h = ($r - $g) / $c + 4;
-            }
-            $h = self::normalizeHue($h * 60);
-
-            // Calculate saturation.
-            // Note: $l cannot be 0 or 1 here because that would require $c == 0,
-            // which is handled by the `if` branch above.
-            $s = $c / (1 - abs(2 * $l - 1));
+        // Reject empty strings.
+        if ($str === '') {
+            return false;
         }
 
-        return [$h, $s, $l];
+        // Trim a leading '#' if present.
+        if ($str[0] === '#') {
+            $str = substr($str, 1);
+        }
+
+        // Check the string is 3, 4, 6 or 8 hex digits.
+        return in_array(strlen($str), [3, 4, 6, 8], true) && ctype_xdigit($str);
     }
 
     /**
-     * Convert HSL values to RGB.
-     * @see https://en.wikipedia.org/wiki/HSL_and_HSV#HSL_to_RGB_alternative
+     * Check if a given string is a valid CSS color name.
      *
      * @static
-     * @param float $hue The hue as an angle in degrees.
-     * @param float $saturation The saturation as a fraction in the range [0.0, 1.0].
-     * @param float $lightness The lightness as a fraction in the range [0.0, 1.0].
-     * @return int[] An array of red, green, and blue bytes.
-     * @throws RangeException If the provided values are not in the valid range for HSL values.
+     * @param string $name A color name.
+     * @return bool If the name is a valid CSS color name.
      */
-    public static function hslToRgb(float $hue, float $saturation, float $lightness): array
+    public static function validName(string $name): bool
     {
-        // Normalize the hue angle.
-        $hue = self::normalizeHue($hue);
-
-        // Validate saturation and lightness.
-        self::validateFraction($saturation);
-        self::validateFraction($lightness);
-
-        // Conversion function.
-        $f = static function ($n) use ($hue, $saturation, $lightness): int {
-            $k = fmod($n + $hue / 30, 12);
-            $a = $saturation * min($lightness, 1 - $lightness);
-            $c = $lightness - $a * max(-1, min($k - 3, 9 - $k, 1));
-            return self::fractionToByte(self::clamp($c));
-        };
-
-        return [$f(0), $f(8), $f(4)];
+        return isset(self::CSS_COLOR_NAMES[strtolower($name)]);
     }
 
     // endregion
 
-    // region Immutable setter methods
+    // region Comparison methods
+
+    /**
+     * Checks if two colors are equal.
+     *
+     * @param mixed $other The other color to compare to.
+     * @return bool True if the colors are equal, false otherwise.
+     */
+    #[Override]
+    public function equal(mixed $other): bool
+    {
+        return $other instanceof self && $this->rgba === $other->rgba;
+    }
+
+    // endregion
+
+    // region Transformation methods
 
     /**
      * Create a new Color with the specified red component.
@@ -472,22 +439,6 @@ class Color implements Stringable
         return self::fromHsla($this->hue, $this->saturation, $lightness, $this->alpha);
     }
 
-    // endregion
-
-    // region Color utilities
-
-    /**
-     * Checks if two colors are equal.
-     *
-     * @param mixed $other The other color to compare to.
-     * @return bool True if the colors are equal, false otherwise.
-     */
-    #[Override]
-    public function equal(mixed $other): bool
-    {
-        return $other instanceof self && $this->rgba === $other->rgba;
-    }
-
     /**
      * Mix two colors.
      *
@@ -534,6 +485,169 @@ class Color implements Stringable
     {
         return $this->withHue($this->hue + 180);
     }
+
+    // endregion
+
+    // region Accessibility methods
+
+    /**
+     * Determine the contrast ratio (as per WCAG 2.x).
+     *
+     * @param Color $other The other color to compare to.
+     * @return float The contrast ratio.
+     */
+    public function contrastRatio(self $other): float
+    {
+        $l1 = max($this->relativeLuminance, $other->relativeLuminance);
+        $l2 = min($this->relativeLuminance, $other->relativeLuminance);
+        return ($l1 + 0.05) / ($l2 + 0.05);
+    }
+
+    /**
+     * Determine the best text color for accessibility/readability, suitable for this background color.
+     *
+     * @param string|Color $lightTextColor The light text color (default white).
+     * @param string|Color $darkTextColor The dark text color (default black).
+     * @return self The most accessible text color.
+     * @throws ValueError If either of the provided text colors are invalid strings.
+     * @see https://www.w3.org/TR/WCAG20/#contrast-ratiodef
+     * @see https://www.w3.org/TR/WCAG20/#visual-audio-contrast-contrast.
+     */
+    public function bestTextColor(string|self $lightTextColor = 'white', string|self $darkTextColor = 'black'): self
+    {
+        // Get the text colors as Color objects.
+        if (is_string($lightTextColor)) {
+            $lightTextColor = new self($lightTextColor);
+        }
+        if (is_string($darkTextColor)) {
+            $darkTextColor = new self($darkTextColor);
+        }
+
+        // Calculate what text color will produce the most contrast. If equal, choose dark.
+        return ($darkTextColor->contrastRatio($this) >= $lightTextColor->contrastRatio($this))
+            ? $darkTextColor
+            : $lightTextColor;
+    }
+
+    // endregion
+
+    // region Conversion methods
+
+    /**
+     * Outputs the color as a 6-digit hexadecimal string, or 8-digit if alpha is included.
+     *
+     * @param bool $includeAlpha If the 2 characters for the alpha byte should be included.
+     * @param bool $includeHash If the result should have a leading '#'.
+     * @param bool $upperCase If letter digits should be upper-case.
+     * @return string The color formatted as a CSS hexadecimal color string.
+     */
+    public function toHex(bool $includeAlpha = true, bool $includeHash = true, bool $upperCase = false): string
+    {
+        // Convert the 4-byte binary string to an 8-character hexadecimal string.
+        $hex = bin2hex($this->rgba);
+
+        // Remove the last 2 characters if alpha isn't required.
+        if (!$includeAlpha) {
+            $hex = substr($hex, 0, 6);
+        }
+
+        // Convert to upper-case if required.
+        if ($upperCase) {
+            $hex = strtoupper($hex);
+        }
+
+        // Add a leading '#' if required.
+        return $includeHash ? "#$hex" : $hex;
+    }
+
+    /**
+     * Outputs the color as an rgb() CSS string.
+     *
+     * @return string The Color as a CSS-compatible "rgb" color string, e.g. "rgb(120 50 50 / 0.67)".
+     * @see https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Values/color_value/rgb
+     */
+    public function toRgbString(): string
+    {
+        $a = self::formatByteAsFraction($this->alpha);
+        return "rgb($this->red $this->green $this->blue / $a)";
+    }
+
+    /**
+     * Outputs the color as an HSL CSS string.
+     *
+     * @return string The Color as a CSS-compatible "hsl" color string, e.g. "hsl(120deg 50% 50% / 0.75)".
+     * @see https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Values/color_value/hsl
+     */
+    public function toHslString(): string
+    {
+        $h = self::formatAngle($this->hue);
+        $s = self::formatPercent($this->saturation);
+        $l = self::formatPercent($this->lightness);
+        $a = self::formatByteAsFraction($this->alpha);
+        return "hsl($h $s $l / $a)";
+    }
+
+    /**
+     * Stringable implementation.
+     *
+     * The default string representation of a Color is an 8-digit RGBA lower-case hex string with leading '#'.
+     * Suitable for use in CSS.
+     *
+     * @return string The Color as a CSS hexadecimal color string (RGBA, 8 digits).
+     */
+    public function __toString(): string
+    {
+        return $this->toHex();
+    }
+
+    /**
+     * Gets all RGBA values as an array.
+     *
+     * @return array{red:int, green:int, blue:int, alpha:int} Array of color components as bytes.
+     */
+    public function toRgbaArray(): array
+    {
+        return [
+            'red'   => $this->red,
+            'green' => $this->green,
+            'blue'  => $this->blue,
+            'alpha' => $this->alpha
+        ];
+    }
+
+    /**
+     * Returns the Color as an array of numbers representing HSL values.
+     *
+     * Hue is represented as an angle in degrees [0, 360).
+     * Saturation and lightness are represented as fractions [0.0, 1.0].
+     *
+     * @return array{hue:float, saturation:float, lightness:float} Array of color components as numbers.
+     */
+    public function toHslArray(): array
+    {
+        return [
+            'hue'        => $this->hue,
+            'saturation' => $this->saturation,
+            'lightness'  => $this->lightness
+        ];
+    }
+
+    /**
+     * Get the color as an array with RGBA and HSL properties.
+     *
+     * @return array<string, int|float> An array of color properties.
+     */
+    public function toArray(): array
+    {
+        return array_merge(
+            $this->toRgbaArray(),
+            $this->toHslArray()
+        );
+    }
+
+    // endregion
+
+    // region Static utility methods
 
     /**
      * Transfer function for gamma correction.
@@ -601,89 +715,95 @@ class Color implements Stringable
         return self::fromRgba($r, $g, $b, $a);
     }
 
-    // endregion
-
-    // region Accessibility methods
-
     /**
-     * Determine the contrast ratio (as per WCAG 2.x).
+     * Convert RGB values to HSL.
      *
-     * @param Color $other The other color to compare to.
-     * @return float The contrast ratio.
-     */
-    public function contrastRatio(self $other): float
-    {
-        $l1 = max($this->relativeLuminance, $other->relativeLuminance);
-        $l2 = min($this->relativeLuminance, $other->relativeLuminance);
-        return ($l1 + 0.05) / ($l2 + 0.05);
-    }
-
-    /**
-     * Determine the best text color for accessibility/readability, suitable for this background color.
+     * The returned array will have the following keys and values in the ranges below:
+     *    hue        => [0, 360)
+     *    saturation => [0.0, 1.0]
+     *    lightness  => [0.0, 1.0]
      *
-     * @param string|Color $lightTextColor The light text color (default white).
-     * @param string|Color $darkTextColor The dark text color (default black).
-     * @return self The most accessible text color.
-     * @throws ValueError If either of the provided text colors are invalid strings.
-     * @see https://www.w3.org/TR/WCAG20/#contrast-ratiodef
-     * @see https://www.w3.org/TR/WCAG20/#visual-audio-contrast-contrast.
-     */
-    public function bestTextColor(string|self $lightTextColor = 'white', string|self $darkTextColor = 'black'): self
-    {
-        // Get the text colors as Color objects.
-        if (is_string($lightTextColor)) {
-            $lightTextColor = new self($lightTextColor);
-        }
-        if (is_string($darkTextColor)) {
-            $darkTextColor = new self($darkTextColor);
-        }
-
-        // Calculate what text color will produce the most contrast. If equal, choose dark.
-        return ($darkTextColor->contrastRatio($this) >= $lightTextColor->contrastRatio($this))
-            ? $darkTextColor
-            : $lightTextColor;
-    }
-
-    // endregion
-
-    // region Static methods for working with hex strings and named colors
-
-    /**
-     * Returns true if the string is a valid hex color string.
-     * A leading '#' is optional, and it can have 3, 4, 6, or 8 hex digits.
+     * Algorithm:
+     * @see https://en.wikipedia.org/wiki/HSL_and_HSV#From_RGB
      *
      * @static
-     * @param string $str A string that could be a CSS hex color.
-     * @return bool If the provided string is a valid CSS hex color string.
+     * @param int $red The red byte value.
+     * @param int $green The green byte value.
+     * @param int $blue The blue byte value.
+     * @return float[] Array of floats with HSL values.
+     * @throws RangeException If the provided values are not in the valid range for RGB bytes.
      */
-    public static function validHex(string $str): bool
+    public static function rgbToHsl(int $red, int $green, int $blue): array
     {
-        $str = trim($str);
+        // Check the red, green and blue bytes are in range:
+        self::validateByte($red);
+        self::validateByte($green);
+        self::validateByte($blue);
 
-        // Reject empty strings.
-        if ($str === '') {
-            return false;
+        // Convert to fractions.
+        $r = self::byteToFraction($red);
+        $g = self::byteToFraction($green);
+        $b = self::byteToFraction($blue);
+
+        // Get the min and max values.
+        $min = min($r, $g, $b);
+        $max = max($r, $g, $b);
+        $c = $max - $min;
+        $l = ($min + $max) / 2;
+
+        // Check for gray.
+        if (Floats::approxEqual($c, 0)) {
+            $h = 0.0;
+            $s = 0.0;
+        } else {
+            // Calculate hue and wrap to [0, 360).
+            if ($max === $r) {
+                $h = fmod(($g - $b) / $c, 6);
+            } elseif ($max === $g) {
+                $h = ($b - $r) / $c + 2;
+            } else { // $max === $b
+                $h = ($r - $g) / $c + 4;
+            }
+            $h = self::normalizeHue($h * 60);
+
+            // Calculate saturation.
+            // Note: $l cannot be 0 or 1 here because that would require $c == 0,
+            // which is handled by the `if` branch above.
+            $s = $c / (1 - abs(2 * $l - 1));
         }
 
-        // Trim a leading '#' if present.
-        if ($str[0] === '#') {
-            $str = substr($str, 1);
-        }
-
-        // Check the string is 3, 4, 6 or 8 hex digits.
-        return in_array(strlen($str), [3, 4, 6, 8], true) && ctype_xdigit($str);
+        return [$h, $s, $l];
     }
 
     /**
-     * Check if a given string is a valid CSS color name.
+     * Convert HSL values to RGB.
+     * @see https://en.wikipedia.org/wiki/HSL_and_HSV#HSL_to_RGB_alternative
      *
      * @static
-     * @param string $name A color name.
-     * @return bool If the name is a valid CSS color name.
+     * @param float $hue The hue as an angle in degrees.
+     * @param float $saturation The saturation as a fraction in the range [0.0, 1.0].
+     * @param float $lightness The lightness as a fraction in the range [0.0, 1.0].
+     * @return int[] An array of red, green, and blue bytes.
+     * @throws RangeException If the provided values are not in the valid range for HSL values.
      */
-    public static function validName(string $name): bool
+    public static function hslToRgb(float $hue, float $saturation, float $lightness): array
     {
-        return isset(self::CSS_COLOR_NAMES[strtolower($name)]);
+        // Normalize the hue angle.
+        $hue = self::normalizeHue($hue);
+
+        // Validate saturation and lightness.
+        self::validateFraction($saturation);
+        self::validateFraction($lightness);
+
+        // Conversion function.
+        $f = static function ($n) use ($hue, $saturation, $lightness): int {
+            $k = fmod($n + $hue / 30, 12);
+            $a = $saturation * min($lightness, 1 - $lightness);
+            $c = $lightness - $a * max(-1, min($k - 3, 9 - $k, 1));
+            return self::fractionToByte(self::clamp($c));
+        };
+
+        return [$f(0), $f(8), $f(4)];
     }
 
     /**
@@ -807,127 +927,7 @@ class Color implements Stringable
 
     // endregion
 
-    // region Methods for converting to string
-
-    /**
-     * Outputs the color as a 6-digit hexadecimal string, or 8-digit if alpha is included.
-     *
-     * @param bool $includeAlpha If the 2 characters for the alpha byte should be included.
-     * @param bool $includeHash If the result should have a leading '#'.
-     * @param bool $upperCase If letter digits should be upper-case.
-     * @return string The color formatted as a CSS hexadecimal color string.
-     */
-    public function toHex(bool $includeAlpha = true, bool $includeHash = true, bool $upperCase = false): string
-    {
-        // Convert the 4-byte binary string to an 8-character hexadecimal string.
-        $hex = bin2hex($this->rgba);
-
-        // Remove the last 2 characters if alpha isn't required.
-        if (!$includeAlpha) {
-            $hex = substr($hex, 0, 6);
-        }
-
-        // Convert to upper-case if required.
-        if ($upperCase) {
-            $hex = strtoupper($hex);
-        }
-
-        // Add a leading '#' if required.
-        return $includeHash ? "#$hex" : $hex;
-    }
-
-    /**
-     * Outputs the color as an rgb() CSS string.
-     *
-     * @return string The Color as a CSS-compatible "rgb" color string, e.g. "rgb(120 50 50 / 0.67)".
-     * @see https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Values/color_value/rgb
-     */
-    public function toRgbString(): string
-    {
-        $a = self::formatByteAsFraction($this->alpha);
-        return "rgb($this->red $this->green $this->blue / $a)";
-    }
-
-    /**
-     * Outputs the color as an HSL CSS string.
-     *
-     * @return string The Color as a CSS-compatible "hsl" color string, e.g. "hsl(120deg 50% 50% / 0.75)".
-     * @see https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Values/color_value/hsl
-     */
-    public function toHslString(): string
-    {
-        $h = self::formatAngle($this->hue);
-        $s = self::formatPercent($this->saturation);
-        $l = self::formatPercent($this->lightness);
-        $a = self::formatByteAsFraction($this->alpha);
-        return "hsl($h $s $l / $a)";
-    }
-
-    /**
-     * Stringable implementation.
-     *
-     * The default string representation of a Color is an 8-digit RGBA lower-case hex string with leading '#'.
-     * Suitable for use in CSS.
-     *
-     * @return string The Color as a CSS hexadecimal color string (RGBA, 8 digits).
-     */
-    public function __toString(): string
-    {
-        return $this->toHex();
-    }
-
-    // endregion
-
-    // region Methods for converting to array
-
-    /**
-     * Gets all RGBA values as an array.
-     *
-     * @return array{red:int, green:int, blue:int, alpha:int} Array of color components as bytes.
-     */
-    public function toRgbaArray(): array
-    {
-        return [
-            'red'   => $this->red,
-            'green' => $this->green,
-            'blue'  => $this->blue,
-            'alpha' => $this->alpha
-        ];
-    }
-
-    /**
-     * Returns the Color as an array of numbers representing HSL values.
-     *
-     * Hue is represented as an angle in degrees [0, 360).
-     * Saturation and lightness are represented as fractions [0.0, 1.0].
-     *
-     * @return array{hue:float, saturation:float, lightness:float} Array of color components as numbers.
-     */
-    public function toHslArray(): array
-    {
-        return [
-            'hue'        => $this->hue,
-            'saturation' => $this->saturation,
-            'lightness'  => $this->lightness
-        ];
-    }
-
-    /**
-     * Get the color as an array with RGBA and HSL properties.
-     *
-     * @return array<string, int|float> An array of color properties.
-     */
-    public function toArray(): array
-    {
-        return array_merge(
-            $this->toRgbaArray(),
-            $this->toHslArray()
-        );
-    }
-
-    // endregion
-
-    // region Helper methods (private instance)
+    // region Instance helper methods
 
     /**
      * Set the red, green, blue, and alpha components all at the same time.
@@ -971,7 +971,7 @@ class Color implements Stringable
 
     // endregion
 
-    // region Helper methods (private static)
+    // region Static helper methods
 
     /**
      * Convert a float to a value within the range [0.0, 1.0].
@@ -1066,7 +1066,7 @@ class Color implements Stringable
      */
     private static function formatAngle(float $angle): string
     {
-        return new Angle($angle, 'deg')->format('f', 6, true, false);
+        return new Angle($angle, 'deg')->format('f', 6);
     }
 
     /**
