@@ -7,7 +7,6 @@ namespace Galaxon\Color;
 use ArgumentCountError;
 use Galaxon\Core\Floats;
 use Galaxon\Core\Traits\Equatable;
-use Galaxon\Units\MeasurementTypes\Angle;
 use Override;
 use RangeException;
 use Stringable;
@@ -260,7 +259,7 @@ class Color implements Stringable
     public static function fromHsla(float $hue, float $saturation, float $lightness, int|float $alpha = 255): self
     {
         // Normalize the hue angle.
-        $hue = self::normalizeHue($hue);
+        $hue = self::wrapHue($hue);
 
         // If alpha was provided as a float, convert it to a byte.
         if (is_float($alpha)) {
@@ -764,7 +763,7 @@ class Color implements Stringable
             } else { // $max === $b
                 $h = ($r - $g) / $c + 4;
             }
-            $h = self::normalizeHue($h * 60);
+            $h = self::wrapHue($h * 60);
 
             // Calculate saturation.
             // Note: $l cannot be 0 or 1 here because that would require $c == 0,
@@ -789,7 +788,7 @@ class Color implements Stringable
     public static function hslToRgb(float $hue, float $saturation, float $lightness): array
     {
         // Normalize the hue angle.
-        $hue = self::normalizeHue($hue);
+        $hue = self::wrapHue($hue);
 
         // Validate saturation and lightness.
         self::validateFraction($saturation);
@@ -1042,9 +1041,9 @@ class Color implements Stringable
      * @param float $hue The hue angle to wrap.
      * @return float The wrapped hue angle.
      */
-    private static function normalizeHue(float $hue): float
+    private static function wrapHue(float $hue): float
     {
-        return new Angle($hue, 'deg')->wrap(false)->value;
+        return Floats::wrap($hue, 360, false);
     }
 
     /**
@@ -1066,7 +1065,7 @@ class Color implements Stringable
      */
     private static function formatAngle(float $angle): string
     {
-        return new Angle($angle, 'deg')->format('f', 6);
+        return self::formatFloat($angle) . 'deg';
     }
 
     /**
