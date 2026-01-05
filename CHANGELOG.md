@@ -7,6 +7,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-01-05
+
+### First Stable Release
+
+This is the first stable release of Galaxon Color, ready for publication on Packagist.
+
+### Breaking Changes
+
+- **Exception types standardized** - All domain validation errors now throw `DomainException` consistently:
+  - `__construct()` - Throws `DomainException` for invalid color strings (was `ValueError`)
+  - `fromRgba()` - Throws `DomainException` for invalid values (was `RangeException`)
+  - `fromHsla()` - Throws `DomainException` for invalid values (was `RangeException`)
+  - `withRed()`, `withGreen()`, `withBlue()`, `withAlpha()` - Throw `DomainException` (was `RangeException`)
+  - `withSaturation()`, `withLightness()` - Throw `DomainException` (was `RangeException`)
+  - `normalizeHex()`, `hexToBytes()` - Throw `DomainException` for invalid hex (was `ValueError`)
+  - `nameToHex()`, `nameToBytes()` - Throw `DomainException` for invalid name (was `ValueError`)
+
+### Changed
+
+- **composer.json** - Updated for Packagist publication:
+  - Added keywords for discoverability
+  - Added author information
+  - Added homepage and support URLs
+  - Updated dependencies to use Packagist versions (galaxon/core ^1.0)
+  - Improved description
+
+### Fixed
+
+- Fixed GitHub URLs in README.md (`PHP-Color` → `Galaxon-PHP-Color`)
+
 ## [0.2.0] - 2025-12-10
 
 ### Changed

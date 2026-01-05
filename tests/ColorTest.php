@@ -5,12 +5,11 @@ declare(strict_types=1);
 namespace Galaxon\Color\Tests;
 
 use ArgumentCountError;
+use DomainException;
 use Galaxon\Color\Color;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use RangeException;
-use ValueError;
 
 /**
  * Test class for Color.
@@ -146,20 +145,20 @@ final class ColorTest extends TestCase
     }
 
     /**
-     * Test constructor throws ValueError for invalid color name.
+     * Test constructor throws DomainException for invalid color name.
      */
     public function testConstructInvalidColorName(): void
     {
-        $this->expectException(ValueError::class);
+        $this->expectException(DomainException::class);
         new Color('notacolor');
     }
 
     /**
-     * Test constructor throws ValueError for invalid hex string.
+     * Test constructor throws DomainException for invalid hex string.
      */
     public function testConstructInvalidHexString(): void
     {
-        $this->expectException(ValueError::class);
+        $this->expectException(DomainException::class);
         new Color('#gg0000');
     }
 
@@ -192,38 +191,38 @@ final class ColorTest extends TestCase
     }
 
     /**
-     * Test fromRgba() throws RangeException for invalid red value.
+     * Test fromRgba() throws DomainException for invalid red value.
      */
     public function testFromRgbaInvalidRed(): void
     {
-        $this->expectException(RangeException::class);
+        $this->expectException(DomainException::class);
         Color::fromRgba(256, 0, 0);
     }
 
     /**
-     * Test fromRgba() throws RangeException for invalid green value.
+     * Test fromRgba() throws DomainException for invalid green value.
      */
     public function testFromRgbaInvalidGreen(): void
     {
-        $this->expectException(RangeException::class);
+        $this->expectException(DomainException::class);
         Color::fromRgba(0, -1, 0);
     }
 
     /**
-     * Test fromRgba() throws RangeException for invalid blue value.
+     * Test fromRgba() throws DomainException for invalid blue value.
      */
     public function testFromRgbaInvalidBlue(): void
     {
-        $this->expectException(RangeException::class);
+        $this->expectException(DomainException::class);
         Color::fromRgba(0, 0, 300);
     }
 
     /**
-     * Test fromRgba() throws RangeException for invalid alpha value.
+     * Test fromRgba() throws DomainException for invalid alpha value.
      */
     public function testFromRgbaInvalidAlpha(): void
     {
-        $this->expectException(RangeException::class);
+        $this->expectException(DomainException::class);
         Color::fromRgba(0, 0, 0, 256);
     }
 
@@ -378,20 +377,20 @@ final class ColorTest extends TestCase
     }
 
     /**
-     * Test fromHsla() throws RangeException for invalid saturation.
+     * Test fromHsla() throws DomainException for invalid saturation.
      */
     public function testFromHslInvalidSaturation(): void
     {
-        $this->expectException(RangeException::class);
+        $this->expectException(DomainException::class);
         Color::fromHsla(0, 1.5, 0.5);
     }
 
     /**
-     * Test fromHsla() throws RangeException for invalid lightness.
+     * Test fromHsla() throws DomainException for invalid lightness.
      */
     public function testFromHslInvalidLightness(): void
     {
-        $this->expectException(RangeException::class);
+        $this->expectException(DomainException::class);
         Color::fromHsla(0, 0.5, -0.1);
     }
 
@@ -474,12 +473,12 @@ final class ColorTest extends TestCase
     }
 
     /**
-     * Test withRed() throws RangeException for invalid value.
+     * Test withRed() throws DomainException for invalid value.
      */
     public function testWithRedInvalid(): void
     {
         $color = new Color('black');
-        $this->expectException(RangeException::class);
+        $this->expectException(DomainException::class);
         $color->withRed(256);
     }
 
@@ -577,22 +576,22 @@ final class ColorTest extends TestCase
     }
 
     /**
-     * Test withSaturation() throws RangeException for invalid value.
+     * Test withSaturation() throws DomainException for invalid value.
      */
     public function testWithSaturationInvalid(): void
     {
         $color = new Color('red');
-        $this->expectException(RangeException::class);
+        $this->expectException(DomainException::class);
         $color->withSaturation(1.5);
     }
 
     /**
-     * Test withLightness() throws RangeException for invalid value.
+     * Test withLightness() throws DomainException for invalid value.
      */
     public function testWithLightnessInvalid(): void
     {
         $color = new Color('red');
-        $this->expectException(RangeException::class);
+        $this->expectException(DomainException::class);
         $color->withLightness(-0.1);
     }
 
@@ -669,12 +668,12 @@ final class ColorTest extends TestCase
     public static function RGBToHSLProvider(): array
     {
         return [
-            'red' => [255, 0, 0, 0.0, 1.0, 0.5],
+            'red'   => [255, 0, 0, 0.0, 1.0, 0.5],
             'green' => [0, 255, 0, 120.0, 1.0, 0.5],
-            'blue' => [0, 0, 255, 240.0, 1.0, 0.5],
+            'blue'  => [0, 0, 255, 240.0, 1.0, 0.5],
             'black' => [0, 0, 0, 0.0, 0.0, 0.0],
             'white' => [255, 255, 255, 0.0, 0.0, 1.0],
-            'gray' => [128, 128, 128, 0.0, 0.0, 0.502],
+            'gray'  => [128, 128, 128, 0.0, 0.0, 0.502],
         ];
     }
 
@@ -702,12 +701,12 @@ final class ColorTest extends TestCase
     public static function HSLToRGBProvider(): array
     {
         return [
-            'red' => [0.0, 1.0, 0.5, 255, 0, 0],
+            'red'   => [0.0, 1.0, 0.5, 255, 0, 0],
             'green' => [120.0, 1.0, 0.5, 0, 255, 0],
-            'blue' => [240.0, 1.0, 0.5, 0, 0, 255],
+            'blue'  => [240.0, 1.0, 0.5, 0, 0, 255],
             'black' => [0.0, 0.0, 0.0, 0, 0, 0],
             'white' => [0.0, 0.0, 1.0, 255, 255, 255],
-            'gray' => [0.0, 0.0, 0.5, 128, 128, 128],
+            'gray'  => [0.0, 0.0, 0.5, 128, 128, 128],
         ];
     }
 
@@ -948,20 +947,20 @@ final class ColorTest extends TestCase
     }
 
     /**
-     * Test normalizeHex() throws ValueError for invalid hex string.
+     * Test normalizeHex() throws DomainException for invalid hex string.
      */
     public function testNormalizeHexInvalid(): void
     {
-        $this->expectException(ValueError::class);
+        $this->expectException(DomainException::class);
         Color::normalizeHex('notahex');
     }
 
     /**
-     * Test colorNameToHex() throws ValueError for invalid color name.
+     * Test colorNameToHex() throws DomainException for invalid color name.
      */
     public function testColorNameToHexInvalid(): void
     {
-        $this->expectException(ValueError::class);
+        $this->expectException(DomainException::class);
         Color::nameToHex('notacolor');
     }
 
@@ -1246,13 +1245,13 @@ final class ColorTest extends TestCase
     }
 
     /**
-     * Test mix() throws RangeException for invalid fraction.
+     * Test mix() throws DomainException for invalid fraction.
      */
     public function testMixInvalidFraction(): void
     {
         $color1 = new Color('red');
         $color2 = new Color('blue');
-        $this->expectException(RangeException::class);
+        $this->expectException(DomainException::class);
         $color1->mix($color2, 1.5);
     }
 

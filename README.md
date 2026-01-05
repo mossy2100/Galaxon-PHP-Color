@@ -107,11 +107,11 @@ Contributions are welcome! Please:
 4. Ensure all tests pass
 5. Submit a pull request
 
-For questions or suggestions, please [open an issue](https://github.com/mossy2100/PHP-Color/issues).
+For questions or suggestions, please [open an issue](https://github.com/mossy2100/Galaxon-PHP-Color/issues).
 
 ## Support
 
-- **Issues**: https://github.com/mossy2100/PHP-Color/issues
+- **Issues**: https://github.com/mossy2100/Galaxon-PHP-Color/issues
 - **Documentation**: See [docs/](docs/) directory for detailed class documentation
 - **Examples**: See test files for comprehensive usage examples
 

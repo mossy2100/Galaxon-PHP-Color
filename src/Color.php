@@ -5,12 +5,11 @@ declare(strict_types=1);
 namespace Galaxon\Color;
 
 use ArgumentCountError;
+use DomainException;
 use Galaxon\Core\Floats;
 use Galaxon\Core\Traits\Equatable;
 use Override;
-use RangeException;
 use Stringable;
-use ValueError;
 
 /**
  * Color class.
@@ -41,7 +40,7 @@ class Color implements Stringable
     /**
      * Cache for HSL properties.
      *
-     * @var null|float[]
+     * @var ?list<float>
      */
     private ?array $hsl = null;
 
@@ -188,7 +187,7 @@ class Color implements Stringable
      * Defaults to black.
      *
      * @param string $color The color as a CSS hexadecimal color string or named color.
-     * @throws ValueError If the provided string is not a valid CSS color.
+     * @throws DomainException If the provided string is not a valid CSS color.
      */
     public function __construct(string $color = 'black')
     {
@@ -211,7 +210,7 @@ class Color implements Stringable
      * @param int|float $blue The blue component value.
      * @param int|float $alpha Optional alpha value. Defaults to 255, equivalent to 1.0 (100% opacity).
      * @return self
-     * @throws RangeException If any inputs are invalid.
+     * @throws DomainException If any inputs are invalid.
      */
     public static function fromRgba(int|float $red, int|float $green, int|float $blue, int|float $alpha = 255): self
     {
@@ -254,7 +253,7 @@ class Color implements Stringable
      * @param float $lightness The lightness as a fraction in the range [0.0, 1.0].
      * @param int|float $alpha Optional alpha value. Defaults to 255, equivalent to 1.0 (100% opacity).
      * @return self
-     * @throws RangeException If any inputs are invalid.
+     * @throws DomainException If any inputs are invalid.
      */
     public static function fromHsla(float $hue, float $saturation, float $lightness, int|float $alpha = 255): self
     {
@@ -352,7 +351,7 @@ class Color implements Stringable
      *
      * @param int|float $red The red component value.
      * @return self A new Color with the updated red value.
-     * @throws RangeException If the value is invalid.
+     * @throws DomainException If the value is invalid.
      */
     public function withRed(int|float $red): self
     {
@@ -366,7 +365,7 @@ class Color implements Stringable
      *
      * @param int|float $green The green component value.
      * @return self A new Color with the updated green value.
-     * @throws RangeException If the value is invalid.
+     * @throws DomainException If the value is invalid.
      */
     public function withGreen(int|float $green): self
     {
@@ -380,7 +379,7 @@ class Color implements Stringable
      *
      * @param int|float $blue The blue component value.
      * @return self A new Color with the updated blue value.
-     * @throws RangeException If the value is invalid.
+     * @throws DomainException If the value is invalid.
      */
     public function withBlue(int|float $blue): self
     {
@@ -394,7 +393,7 @@ class Color implements Stringable
      *
      * @param int|float $alpha The alpha component value.
      * @return self A new Color with the updated alpha value.
-     * @throws RangeException If the value is invalid.
+     * @throws DomainException If the value is invalid.
      */
     public function withAlpha(int|float $alpha): self
     {
@@ -417,7 +416,7 @@ class Color implements Stringable
      *
      * @param float $saturation The saturation as a fraction in the range [0.0, 1.0].
      * @return self A new Color with the updated saturation.
-     * @throws RangeException If the value is invalid.
+     * @throws DomainException If the value is invalid.
      */
     public function withSaturation(float $saturation): self
     {
@@ -430,7 +429,7 @@ class Color implements Stringable
      *
      * @param float $lightness The lightness as a fraction in the range [0.0, 1.0].
      * @return self A new Color with the updated lightness.
-     * @throws RangeException If the value is invalid.
+     * @throws DomainException If the value is invalid.
      */
     public function withLightness(float $lightness): self
     {
@@ -448,7 +447,7 @@ class Color implements Stringable
      * @param self $other The color to mix with.
      * @param float $frac The fraction of the "other" color as a float in the range [0.0, 1.0].
      * @return self
-     * @throws RangeException If the fraction is invalid.
+     * @throws DomainException If the fraction is invalid.
      */
     public function mix(self $other, float $frac = 0.5): self
     {
@@ -508,7 +507,7 @@ class Color implements Stringable
      * @param string|Color $lightTextColor The light text color (default white).
      * @param string|Color $darkTextColor The dark text color (default black).
      * @return self The most accessible text color.
-     * @throws ValueError If either of the provided text colors are invalid strings.
+     * @throws DomainException If either of the provided text colors are invalid strings.
      * @see https://www.w3.org/TR/WCAG20/#contrast-ratiodef
      * @see https://www.w3.org/TR/WCAG20/#visual-audio-contrast-contrast.
      */
@@ -610,7 +609,8 @@ class Color implements Stringable
             'red'   => $this->red,
             'green' => $this->green,
             'blue'  => $this->blue,
-            'alpha' => $this->alpha
+            'alpha' => $this->alpha,
+
         ];
     }
 
@@ -627,7 +627,8 @@ class Color implements Stringable
         return [
             'hue'        => $this->hue,
             'saturation' => $this->saturation,
-            'lightness'  => $this->lightness
+            'lightness'  => $this->lightness,
+
         ];
     }
 
@@ -676,7 +677,7 @@ class Color implements Stringable
      * @param Color ...$colors The colors to average.
      * @return self The average color.
      * @throws ArgumentCountError If no colors are provided.
-     * @throws RangeException If any of the colors are invalid.
+     * @throws DomainException If any of the colors are invalid.
      */
     public static function average(self ...$colors): self
     {
@@ -729,8 +730,8 @@ class Color implements Stringable
      * @param int $red The red byte value.
      * @param int $green The green byte value.
      * @param int $blue The blue byte value.
-     * @return float[] Array of floats with HSL values.
-     * @throws RangeException If the provided values are not in the valid range for RGB bytes.
+     * @return list<float> Array of floats with HSL values.
+     * @throws DomainException If the provided values are not in the valid range for RGB bytes.
      */
     public static function rgbToHsl(int $red, int $green, int $blue): array
     {
@@ -782,8 +783,8 @@ class Color implements Stringable
      * @param float $hue The hue as an angle in degrees.
      * @param float $saturation The saturation as a fraction in the range [0.0, 1.0].
      * @param float $lightness The lightness as a fraction in the range [0.0, 1.0].
-     * @return int[] An array of red, green, and blue bytes.
-     * @throws RangeException If the provided values are not in the valid range for HSL values.
+     * @return list<int> An array of red, green, and blue bytes.
+     * @throws DomainException If the provided values are not in the valid range for HSL values.
      */
     public static function hslToRgb(float $hue, float $saturation, float $lightness): array
     {
@@ -811,13 +812,13 @@ class Color implements Stringable
      *
      * @param string $hex A CSS hex color string.
      * @return string The 8-digit hex string.
-     * @throws ValueError if the provided string is not a valid CSS hex color string.
+     * @throws DomainException if the provided string is not a valid CSS hex color string.
      */
     public static function normalizeHex(string $hex): string
     {
         // Check the input string is a valid format.
         if (!self::validHex($hex)) {
-            throw new ValueError("The provided string '$hex' is not a valid CSS hexadecimal color string.");
+            throw new DomainException("The provided string '$hex' is not a valid CSS hexadecimal color string.");
         }
 
         // Remove a leading # character if present and lower-case letter digits.
@@ -842,14 +843,14 @@ class Color implements Stringable
      * If there are only 3 or 4 digits, the value is expanded to 6 or 8 digits respectively by repeating each digit.
      *
      * @param string $hex A CSS hex color string.
-     * @return int[] Array of color components as bytes.
-     * @throws ValueError If the provided string is not a valid CSS hex color string.
+     * @return list<int> Array of color components as bytes.
+     * @throws DomainException If the provided string is not a valid CSS hex color string.
      */
     public static function hexToBytes(string $hex): array
     {
         // Check the input string is a valid format.
         if (!self::validHex($hex)) {
-            throw new ValueError("The provided string '$hex' is not a valid CSS hexadecimal color string.");
+            throw new DomainException("The provided string '$hex' is not a valid CSS hexadecimal color string.");
         }
 
         // Normalize to 8 hex digits.
@@ -874,7 +875,7 @@ class Color implements Stringable
      * @static
      * @param string $name A CSS color name.
      * @return string The hex value for this color.
-     * @throws ValueError If the provided string is not a valid color name.
+     * @throws DomainException If the provided string is not a valid color name.
      */
     public static function nameToHex(string $name): string
     {
@@ -882,7 +883,7 @@ class Color implements Stringable
 
         // Check the provided color name is valid.
         if (!self::validName($name)) {
-            throw new ValueError("Invalid color name '$name'.");
+            throw new DomainException("Invalid color name '$name'.");
         }
 
         // Look up the hex value for the color.
@@ -894,8 +895,8 @@ class Color implements Stringable
      *
      * @static
      * @param string $name A CSS color name.
-     * @return int[] RGBA color components as array of bytes.
-     * @throws ValueError if the provided string is not a valid color name.
+     * @return list<int> RGBA color components as array of bytes.
+     * @throws DomainException if the provided string is not a valid color name.
      */
     public static function nameToBytes(string $name): array
     {
@@ -908,8 +909,8 @@ class Color implements Stringable
      *
      * @static
      * @param string $str The color string.
-     * @return int[] RGBA color components as array of bytes.
-     * @throws ValueError If the provided string is not a valid CSS color name or hex color string.
+     * @return list<int> RGBA color components as array of bytes.
+     * @throws DomainException If the provided string is not a valid CSS color name or hex color string.
      */
     public static function parseToBytes(string $str): array
     {
@@ -988,12 +989,12 @@ class Color implements Stringable
      *
      * @param int $byte The value to check.
      * @return void
-     * @throws RangeException If the byte is out of range.
+     * @throws DomainException If the byte is out of range.
      */
     private static function validateByte(int $byte): void
     {
         if ($byte < 0 || $byte > 255) {
-            throw new RangeException('Invalid byte value. Byte values must be in the range [0, 255].');
+            throw new DomainException('Invalid byte value. Byte values must be in the range [0, 255].');
         }
     }
 
@@ -1002,12 +1003,12 @@ class Color implements Stringable
      *
      * @param float $frac The fraction to check.
      * @return void
-     * @throws RangeException If the fraction is out of range.
+     * @throws DomainException If the fraction is out of range.
      */
     private static function validateFraction(float $frac): void
     {
         if ($frac < 0 || $frac > 1) {
-            throw new RangeException('Invalid fraction value. Fractions must be in the range [0.0, 1.0].');
+            throw new DomainException('Invalid fraction value. Fractions must be in the range [0.0, 1.0].');
         }
     }
 
