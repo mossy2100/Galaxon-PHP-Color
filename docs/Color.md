@@ -2,6 +2,8 @@
 
 Immutable, memory-efficient class for working with colors in PHP.
 
+---
+
 ## Overview
 
 The `Color` class provides a comprehensive implementation of color handling with support for:
@@ -19,6 +21,8 @@ Colors are stored internally in a memory-efficient way:
 - Immutability eliminates cache invalidation complexity
 
 This makes the class suitable for applications working with large numbers of colors, such as image processing or color palette generation.
+
+---
 
 ## Properties
 
@@ -114,6 +118,8 @@ $color->relativeLuminance;   // 0.0-1.0
 $color->perceivedLightness;  // 0.0-1.0
 ```
 
+---
+
 ## Constants
 
 ### CSS_COLOR_NAMES
@@ -132,6 +138,8 @@ new Color('darkslategray');
 new Color('PapayaWhip');
 new Color('transparent');  // RGBA: 0, 0, 0, 0
 ```
+
+---
 
 ## Constructor
 
@@ -157,7 +165,9 @@ $cyan = new Color('0ff');
 $semiTransparent = new Color('#ff000080');
 ```
 
-**Throws:** `ValueError` if the string is not a valid CSS color.
+**Throws:** `FormatException` or `DomainException` if the string is not a valid CSS color.
+
+---
 
 ## Factory Methods
 
@@ -190,7 +200,7 @@ $royalBlue = Color::fromRgba(0.255, 0.412, 0.882);
 $transparentGreen = Color::fromRgba(0.133, 0.545, 0.133, 0.75);
 ```
 
-**Throws:** `RangeException` if any inputs are invalid.
+**Throws:** `DomainException` if any inputs are invalid.
 
 ### fromHsla()
 
@@ -218,7 +228,9 @@ $pastel = Color::fromHsla(200, 0.5, 0.8, 200);
 $transparentPink = Color::fromHsla(350, 1.0, 0.876, 0.66);
 ```
 
-**Throws:** `RangeException` if any inputs are invalid.
+**Throws:** `DomainException` if any inputs are invalid.
+
+---
 
 ## Validation Methods
 
@@ -251,6 +263,8 @@ Color::validName('red');       // true
 Color::validName('notacolor'); // false
 ```
 
+---
+
 ## Comparison Methods
 
 ### equal()
@@ -268,6 +282,8 @@ $color2 = new Color('red');
 $color1->equal($color2);  // true
 ```
 
+---
+
 ## Transformation Methods
 
 Since Color is immutable, transformation methods return new Color instances.
@@ -282,7 +298,7 @@ Create a new Color with the specified red component.
 
 The value can be provided as either an int in the range [0, 255] or a float in the range [0.0, 1.0].
 
-**Throws:** `RangeException` if the value is invalid.
+**Throws:** `DomainException` if the value is invalid.
 
 ### withGreen()
 
@@ -294,7 +310,7 @@ Create a new Color with the specified green component.
 
 The value can be provided as either an int in the range [0, 255] or a float in the range [0.0, 1.0].
 
-**Throws:** `RangeException` if the value is invalid.
+**Throws:** `DomainException` if the value is invalid.
 
 ### withBlue()
 
@@ -306,7 +322,7 @@ Create a new Color with the specified blue component.
 
 The value can be provided as either an int in the range [0, 255] or a float in the range [0.0, 1.0].
 
-**Throws:** `RangeException` if the value is invalid.
+**Throws:** `DomainException` if the value is invalid.
 
 ### withAlpha()
 
@@ -318,13 +334,15 @@ Create a new Color with the specified alpha component.
 
 The value can be provided as either an int in the range [0, 255] or a float in the range [0.0, 1.0].
 
+**Throws:** `DomainException` if the value is invalid.
+
 ### withHue()
 
 ```php
 public function withHue(float $hue): self
 ```
 
-Create a new Color with the specified hue, provided in degrees (will be normalized to [0, 360))
+Create a new Color with the specified hue, provided in degrees (will be normalized to [0, 360)).
 
 ### withSaturation()
 
@@ -334,7 +352,7 @@ public function withSaturation(float $saturation): self
 
 Create a new Color with the specified saturation.
 
-**Throws:** `RangeException` if the value is not in [0.0, 1.0].
+**Throws:** `DomainException` if the value is not in [0.0, 1.0].
 
 ### withLightness()
 
@@ -344,7 +362,7 @@ public function withLightness(float $lightness): self
 
 Create a new Color with the specified lightness.
 
-**Throws:** `RangeException` if the value is not in [0.0, 1.0].
+**Throws:** `DomainException` if the value is not in [0.0, 1.0].
 
 ### Examples of `with` methods
 ```php
@@ -391,7 +409,7 @@ $purple = $red->mix($blue);           // 50% each
 $mostlyBlue = $red->mix($blue, 0.8);  // 20% red, 80% blue
 ```
 
-**Throws:** `RangeException` if the fraction is invalid.
+**Throws:** `DomainException` if the fraction is invalid.
 
 ### complement()
 
@@ -406,6 +424,8 @@ Get the complementary color (hue + 180 degrees).
 $red = new Color('red');
 $cyan = $red->complement();  // Hue shifts from 0 to 180
 ```
+
+---
 
 ## Accessibility Methods
 
@@ -445,7 +465,7 @@ By default, chooses between white and black, but custom light/dark text colors c
 
 **Returns:** The text color with the best contrast ratio.
 
-**Throws:** `ValueError` if either text color string is invalid.
+**Throws:** `FormatException` or `DomainException` if either text color string is invalid.
 
 **Examples:**
 ```php
@@ -462,6 +482,8 @@ $cream = new Color('cornsilk');
 $dark = new Color('#1a1a1a');
 $textColor = $background->bestTextColor($cream, $dark);
 ```
+
+---
 
 ## Conversion Methods
 
@@ -516,7 +538,7 @@ $color = Color::fromRgba(255, 128, 0, 200);
 $color->toHslString();  // 'hsl(30.117647deg 100% 50% / 0.784314)'
 ```
 
-### __toString()
+### \_\_toString()
 
 ```php
 public function __toString(): string
@@ -559,6 +581,8 @@ public function toArray(): array
 ```
 
 Get all color properties (RGBA and HSL) as an associative array.
+
+---
 
 ## Static Utility Methods
 
@@ -610,7 +634,7 @@ Convert RGB values to HSL.
 $hsl = Color::rgbToHsl(255, 0, 0);  // [0.0, 1.0, 0.5]
 ```
 
-**Throws:** `RangeException` if values are not valid bytes.
+**Throws:** `DomainException` if values are not valid bytes.
 
 ### hslToRgb()
 
@@ -627,7 +651,7 @@ Convert HSL values to RGB.
 $rgb = Color::hslToRgb(120, 1.0, 0.5);  // [0, 255, 0]
 ```
 
-**Throws:** `RangeException` if values are not valid.
+**Throws:** `DomainException` if values are not valid.
 
 ### normalizeHex()
 
@@ -644,7 +668,7 @@ Color::normalizeHex('#FF00');     // 'ffff0000'
 Color::normalizeHex('abc');       // 'aabbccff'
 ```
 
-**Throws:** `ValueError` if the string is not a valid hex color.
+**Throws:** `FormatException` if the string is not a valid hex color.
 
 ### hexToBytes()
 
@@ -654,7 +678,7 @@ public static function hexToBytes(string $hex): array
 
 Convert a hex string to RGBA bytes.
 
-**Throws:** `ValueError` if the string is not a valid hex color.
+**Throws:** `FormatException` if the string is not a valid hex color.
 
 ### nameToHex()
 
@@ -664,7 +688,7 @@ public static function nameToHex(string $name): string
 
 Convert a color name to an 8-digit hex value (no leading '#').
 
-**Throws:** `ValueError` if the name is not valid.
+**Throws:** `DomainException` if the name is not valid.
 
 ### nameToBytes()
 
@@ -674,7 +698,7 @@ public static function nameToBytes(string $name): array
 
 Convert a color name to RGBA bytes.
 
-**Throws:** `ValueError` if the name is not valid.
+**Throws:** `DomainException` if the name is not valid.
 
 ### parseToBytes()
 
@@ -692,7 +716,9 @@ $bytes = Color::parseToBytes('#ff8000');
 // [255, 128, 0, 255]
 ```
 
-**Throws:** `ValueError` if the string is not a valid color.
+**Throws:** `FormatException` or `DomainException` if the string is not a valid color.
+
+---
 
 ## See Also
 

@@ -6,6 +6,7 @@ namespace Galaxon\Color;
 
 use ArgumentCountError;
 use DomainException;
+use Galaxon\Core\Exceptions\FormatException;
 use Galaxon\Core\Floats;
 use Galaxon\Core\Traits\Equatable;
 use Override;
@@ -58,10 +59,6 @@ class Color implements Stringable
     // endregion
 
     // region Property hooks
-
-    // PHP_CodeSniffer doesn't know about property hooks yet.
-    // phpcs:disable PSR2.Classes.PropertyDeclaration
-    // phpcs:disable Generic.WhiteSpace.ScopeIndent.IncorrectExact
 
     /**
      * Get the red component of the color.
@@ -172,9 +169,6 @@ class Color implements Stringable
             return self::clamp($lStar / 100.0);
         }
     }
-
-    // phpcs:enable PSR2.Classes.PropertyDeclaration
-    // phpcs:enable Generic.WhiteSpace.ScopeIndent.IncorrectExact
 
     // endregion
 
@@ -812,13 +806,13 @@ class Color implements Stringable
      *
      * @param string $hex A CSS hex color string.
      * @return string The 8-digit hex string.
-     * @throws DomainException if the provided string is not a valid CSS hex color string.
+     * @throws FormatException If the provided string is not a valid CSS hex color string.
      */
     public static function normalizeHex(string $hex): string
     {
         // Check the input string is a valid format.
         if (!self::validHex($hex)) {
-            throw new DomainException("The provided string '$hex' is not a valid CSS hexadecimal color string.");
+            throw new FormatException("Invalid CSS hex color: '$hex'.");
         }
 
         // Remove a leading # character if present and lower-case letter digits.
@@ -844,13 +838,13 @@ class Color implements Stringable
      *
      * @param string $hex A CSS hex color string.
      * @return list<int> Array of color components as bytes.
-     * @throws DomainException If the provided string is not a valid CSS hex color string.
+     * @throws FormatException If the provided string is not a valid CSS hex color string.
      */
     public static function hexToBytes(string $hex): array
     {
         // Check the input string is a valid format.
         if (!self::validHex($hex)) {
-            throw new DomainException("The provided string '$hex' is not a valid CSS hexadecimal color string.");
+            throw new FormatException("Invalid CSS hex color: '$hex'.");
         }
 
         // Normalize to 8 hex digits.
@@ -994,7 +988,7 @@ class Color implements Stringable
     private static function validateByte(int $byte): void
     {
         if ($byte < 0 || $byte > 255) {
-            throw new DomainException('Invalid byte value. Byte values must be in the range [0, 255].');
+            throw new DomainException("Invalid byte value: $byte. Must be in the range [0, 255].");
         }
     }
 
@@ -1008,7 +1002,7 @@ class Color implements Stringable
     private static function validateFraction(float $frac): void
     {
         if ($frac < 0 || $frac > 1) {
-            throw new DomainException('Invalid fraction value. Fractions must be in the range [0.0, 1.0].');
+            throw new DomainException("Invalid fraction value: $frac. Must be in the range [0.0, 1.0].");
         }
     }
 

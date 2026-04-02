@@ -5,7 +5,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+---
+
 ## [Unreleased]
+
+---
+
+## [1.0.1] - 2026-04-02
+
+### Changed
+
+- **Exception types** — `normalizeHex()` and `hexToBytes()` now throw `FormatException` (was `DomainException`) for invalid hex strings, since these are string format validation errors.
+- **Exception messages** — `validateByte()` and `validateFraction()` now include the offending value and constraint in the message.
+
+### Documentation
+
+- Fixed stale exception types in Color.md (`ValueError`/`RangeException` → `FormatException`/`DomainException`).
+- Added missing `**Throws:**` for `withAlpha()`.
+- Added `---` before H2 headings in CHANGELOG.md.
+- Removed Contributing section from README (link moved to Support).
+
+---
 
 ## [1.0.0] - 2026-01-05
 
@@ -37,6 +57,8 @@ This is the first stable release of Galaxon Color, ready for publication on Pack
 
 - Fixed GitHub URLs in README.md (`PHP-Color` → `Galaxon-PHP-Color`)
 
+---
+
 ## [0.2.0] - 2025-12-10
 
 ### Changed
@@ -59,6 +81,8 @@ This is the first stable release of Galaxon Color, ready for publication on Pack
 - Reorganised documentation with `docs/Color.md` for detailed class documentation
 - New tests for float arguments to `with*()` methods
 - New tests for custom text colors in `bestTextColor()`
+
+---
 
 ## [0.1.0] - 2025-11-22
 

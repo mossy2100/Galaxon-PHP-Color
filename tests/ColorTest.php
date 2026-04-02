@@ -7,6 +7,7 @@ namespace Galaxon\Color\Tests;
 use ArgumentCountError;
 use DomainException;
 use Galaxon\Color\Color;
+use Galaxon\Core\Exceptions\FormatException;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -154,11 +155,11 @@ final class ColorTest extends TestCase
     }
 
     /**
-     * Test constructor throws DomainException for invalid hex string.
+     * Test constructor throws FormatException for invalid hex string.
      */
     public function testConstructInvalidHexString(): void
     {
-        $this->expectException(DomainException::class);
+        $this->expectException(FormatException::class);
         new Color('#gg0000');
     }
 
@@ -947,11 +948,11 @@ final class ColorTest extends TestCase
     }
 
     /**
-     * Test normalizeHex() throws DomainException for invalid hex string.
+     * Test normalizeHex() throws FormatException for invalid hex string.
      */
     public function testNormalizeHexInvalid(): void
     {
-        $this->expectException(DomainException::class);
+        $this->expectException(FormatException::class);
         Color::normalizeHex('notahex');
     }
 

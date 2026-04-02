@@ -6,6 +6,8 @@ An immutable, memory-efficient Color class for PHP with support for RGB and HSL 
 
 ![PHP 8.4](docs/logo_php8_4.png)
 
+---
+
 ## Description
 
 This package provides a comprehensive Color class for working with colors in PHP. The class is designed to be:
@@ -15,11 +17,15 @@ This package provides a comprehensive Color class for working with colors in PHP
 - **Feature-rich** - Supports RGB, HSL, hex strings, CSS color names, and accessibility calculations
 - **CSS-compatible** - Outputs to modern CSS color formats (hex, rgb, hsl)
 
+---
+
 ## Development and Quality Assurance / AI Disclosure
 
 [Claude Chat](https://claude.ai) and [Claude Code](https://www.claude.com/product/claude-code) were used in the development of this package. The core classes were designed, coded, and commented primarily by the author, with Claude providing substantial assistance with code review, suggesting improvements, debugging, and generating tests and documentation. All code was thoroughly reviewed by the author, and validated using industry-standard tools including [PHP_Codesniffer](https://github.com/PHPCSStandards/PHP_CodeSniffer/), [PHPStan](https://phpstan.org/) (to level 9), and [PHPUnit](https://phpunit.de/index.html) to ensure full compliance with [PSR-12](https://www.php-fig.org/psr/psr-12/) coding standards and comprehensive unit testing with 100% code coverage. This collaborative approach resulted in a high-quality, thoroughly-tested, and well-documented package delivered in significantly less time than traditional development methods.
 
 ![Code Coverage](https://img.shields.io/badge/coverage-100%25-brightgreen)
+
+---
 
 ## Requirements
 
@@ -27,11 +33,15 @@ This package provides a comprehensive Color class for working with colors in PHP
 - ext-ctype
 - galaxon/core
 
+---
+
 ## Installation
 
 ```bash
 composer require galaxon/color
 ```
+
+---
 
 ## Quick Start
 
@@ -68,6 +78,8 @@ echo $color->toRgbString();  // 'rgb(255 128 64 / 1)'
 echo $color->toHslString();  // 'hsl(20deg 100% 62.5% / 1)'
 ```
 
+---
+
 ## Classes
 
 ### [Color](docs/Color.md)
@@ -81,6 +93,8 @@ Immutable class for color manipulation with support for:
 - WCAG accessibility calculations (contrast ratio, text color selection)
 - Multiple output formats (hex, rgb(), hsl())
 
+---
+
 ## Testing
 
 The library includes comprehensive test coverage:
@@ -93,27 +107,23 @@ vendor/bin/phpunit
 composer test
 ```
 
+---
+
 ## License
 
 MIT License - see [LICENSE](LICENSE) for details
 
-## Contributing
-
-Contributions are welcome! Please:
-
-1. Fork the repository
-2. Create a feature branch
-3. Add tests for new functionality
-4. Ensure all tests pass
-5. Submit a pull request
-
-For questions or suggestions, please [open an issue](https://github.com/mossy2100/Galaxon-PHP-Color/issues).
+---
 
 ## Support
 
 - **Issues**: https://github.com/mossy2100/Galaxon-PHP-Color/issues
 - **Documentation**: See [docs/](docs/) directory for detailed class documentation
 - **Examples**: See test files for comprehensive usage examples
+
+For questions or suggestions, please [open an issue](https://github.com/mossy2100/Galaxon-PHP-Color/issues).
+
+---
 
 ## Changelog
 
