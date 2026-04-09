@@ -12,7 +12,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - **`Color::formatFloat()`** — Now uses `Floats::format()` from Core for explicit precision/trailing-zero handling. Behavior is unchanged for normal values; very small values that would previously have leaked scientific notation (e.g. `1.0E-7`) into CSS output now render cleanly as `0` after rounding.
-- **`composer.json`** — Bumped `galaxon/core` constraint from `^1.0` to `^1.6` (required for `Floats::format()`).
+- **`composer.json`** — Bumped `galaxon/core` constraint from `^1.0` to `^1.6`. This is a hard requirement: Core's traits were reorganised in v1.6.0 into `Traits/Asserts/` and `Traits/Comparison/` subnamespaces, and `Color` already imports `Galaxon\Core\Traits\Comparison\Equatable` (the new path). Older Core versions would fail to autoload. The bump also makes `Floats::format()` available.
+- **Documentation** — Updated `Color.md` "See Also" link for `Equatable` to point at the new `Traits/Comparison/Equatable.md` path.
 
 ---
 
