@@ -8,7 +8,7 @@ use ArgumentCountError;
 use DomainException;
 use Galaxon\Core\Exceptions\FormatException;
 use Galaxon\Core\Floats;
-use Galaxon\Core\Traits\Equatable;
+use Galaxon\Core\Traits\Comparison\Equatable;
 use Override;
 use Stringable;
 
@@ -229,6 +229,12 @@ class Color implements Stringable
         self::validateByte($green);
         self::validateByte($blue);
         self::validateByte($alpha);
+
+        // Assertions to satisfy phpstan.
+        assert($red >= 0 && $red <= 255);
+        assert($green >= 0 && $green <= 255);
+        assert($blue >= 0 && $blue <= 255);
+        assert($alpha >= 0 && $alpha <= 255);
 
         // Set the byte values.
         $color->setBytes($red, $green, $blue, $alpha);
@@ -837,7 +843,7 @@ class Color implements Stringable
      * If there are only 3 or 4 digits, the value is expanded to 6 or 8 digits respectively by repeating each digit.
      *
      * @param string $hex A CSS hex color string.
-     * @return list<int> Array of color components as bytes.
+     * @return list<int<0, 255>> Array of color components as bytes.
      * @throws FormatException If the provided string is not a valid CSS hex color string.
      */
     public static function hexToBytes(string $hex): array
@@ -851,16 +857,22 @@ class Color implements Stringable
         $hex = self::normalizeHex($hex);
 
         // Convert string into bytes.
-        /** @var int $r */
-        $r = hexdec(substr($hex, 0, 2));
-        /** @var int $g */
-        $g = hexdec(substr($hex, 2, 2));
-        /** @var int $b */
-        $b = hexdec(substr($hex, 4, 2));
-        /** @var int $a */
-        $a = hexdec(substr($hex, 6, 2));
+        /** @var int $red */
+        $red = hexdec(substr($hex, 0, 2));
+        /** @var int $green */
+        $green = hexdec(substr($hex, 2, 2));
+        /** @var int $blue */
+        $blue = hexdec(substr($hex, 4, 2));
+        /** @var int $alpha */
+        $alpha = hexdec(substr($hex, 6, 2));
 
-        return [$r, $g, $b, $a];
+        // Assertions to satisfy phpstan.
+        assert($red >= 0 && $red <= 255);
+        assert($green >= 0 && $green <= 255);
+        assert($blue >= 0 && $blue <= 255);
+        assert($alpha >= 0 && $alpha <= 255);
+
+        return [$red, $green, $blue, $alpha];
     }
 
     /**
@@ -889,7 +901,7 @@ class Color implements Stringable
      *
      * @static
      * @param string $name A CSS color name.
-     * @return list<int> RGBA color components as array of bytes.
+     * @return list<int<0, 255>> RGBA color components as array of bytes.
      * @throws DomainException if the provided string is not a valid color name.
      */
     public static function nameToBytes(string $name): array
@@ -903,7 +915,7 @@ class Color implements Stringable
      *
      * @static
      * @param string $str The color string.
-     * @return list<int> RGBA color components as array of bytes.
+     * @return list<int<0, 255>> RGBA color components as array of bytes.
      * @throws DomainException If the provided string is not a valid CSS color name or hex color string.
      */
     public static function parseToBytes(string $str): array
@@ -928,10 +940,10 @@ class Color implements Stringable
      *
      * NB: This is an internal function, and arguments are assumed to be in range for bytes.
      *
-     * @param int $red The red component as a byte.
-     * @param int $green The green component as a byte.
-     * @param int $blue The blue component as a byte.
-     * @param int $alpha The alpha value as a byte.
+     * @param int<0, 255> $red The red component as a byte.
+     * @param int<0, 255> $green The green component as a byte.
+     * @param int<0, 255> $blue The blue component as a byte.
+     * @param int<0, 255> $alpha The alpha value as a byte.
      */
     private function setBytes(int $red, int $green, int $blue, int $alpha): void
     {
@@ -1042,14 +1054,14 @@ class Color implements Stringable
     }
 
     /**
-     * Format a fraction.
+     * Format a fraction with up to 6 decimal places, trailing zeros stripped.
      *
      * @param float $value The float to format.
      * @return string The formatted float.
      */
     private static function formatFloat(float $value): string
     {
-        return (string)round($value, 6);
+        return Floats::format($value, 'f', 6, trimZeros: true, ascii: true);
     }
 
     /**
