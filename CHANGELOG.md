@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **`Color::formatFloat()`** — Now uses `Floats::format()` from Core for explicit precision/trailing-zero handling. Behavior is unchanged for normal values; very small values that would previously have leaked scientific notation (e.g. `1.0E-7`) into CSS output now render cleanly as `0` after rounding.
+- **`composer.json`** — Bumped `galaxon/core` constraint from `^1.0` to `^1.6` (required for `Floats::format()`).
+
 ---
 
 ## [1.0.1] - 2026-04-02
